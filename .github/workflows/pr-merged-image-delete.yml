@@ -1,9 +1,11 @@
-name: Delete quay image on PR closed
+name: Delete quay image of PR once merged
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    branches:
+      - 'main'
 
+permissions:
+  pull-requests: read
 env:
   QUAY_IMAGE_REPO: ${{ secrets.QUAY_IMAGE_REPO }}
 jobs:
@@ -19,10 +21,15 @@ jobs:
         run: |
           sudo apt-get -y update
           sudo apt-get -y install skopeo
+      - name: Get Pull Request Number
+        id: pr
+        run: echo "::set-output name=pull_request_number::$(gh pr view --json number -q .number || echo "")"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Delete PR image
         shell: bash
         env:
-          PR: ${{ github.event.pull_request.number }}
+          PR: ${{ steps.pr.outputs.pull_request_number }}
           QUAY_ROBOT_USERNAME: ${{ secrets.QUAY_ROBOT_USERNAME }}
           QUAY_ROBOT_TOKEN: ${{ secrets.QUAY_ROBOT_TOKEN }}
         run: |

@@ -14,7 +14,7 @@ env:
 jobs:
   copy-tag-to-quay:
     runs-on: ubuntu-latest
-    if: 'startsWith(${{ github.event.repository.name }}, "opendatahub-io")'
+    if: github.repository == 'opendatahub-io/data-science-pipelines-operator'
     steps:
       - name: Git checkout
         uses: actions/checkout@v3
